@@ -476,7 +476,10 @@ def main():
     if "3" not in python_version:
         parser.error("Python must be at least version 3")
     name_screen = "".join(args.name_screen.split(" "))
-    path_to_project = os.path.join(project_directory, project_name)
+    if project_directory in [".","./", ".\\"]:
+        path_to_project = os.path.join(os.getcwd(), project_name)
+    else:
+        path_to_project = os.path.join(project_directory, project_name)
     name_database = args.name_database
     if name_database != "no" and name_database not in available_databases:
         parser.error(
@@ -563,8 +566,10 @@ def main():
             localization_po_file(path_to_project)
             create_mofile(path_to_project)
         else:
-            os.remove(os.path.join(path_to_project, "messages.pot"))
-            os.remove(os.path.join(path_to_project, "libs", "translation.py"))
+            if os.path.exists(os.path.join(path_to_project, "messages.pot")):
+                os.remove(os.path.join(path_to_project, "messages.pot"))
+            if os.path.exists(os.path.join(path_to_project, "libs", "translation.py")):
+                os.remove(os.path.join(path_to_project, "libs", "translation.py"))
             shutil.rmtree(os.path.join(path_to_project, "data"))
         Logger.info(f"KivyMD: Project '{path_to_project}' created")
         Logger.info(
@@ -703,10 +708,12 @@ def create_model(
             os.path.join(path_to_project, "Model", "first_screen.py_tmp"),
             (without_database_model),
         )
-        os.remove(
-            os.path.join(path_to_project, "Model", "database_firebase.py")
-        )
-        os.remove(os.path.join(path_to_project, "Model", "database_restdb.py"))
+        if os.path.exists(os.path.join(path_to_project, "Model", "database_firebase.py")):
+            os.remove(
+                os.path.join(path_to_project, "Model", "database_firebase.py")
+            )
+        if os.path.exists(os.path.join(path_to_project, "Model", "database_restdb.py")):
+            os.remove(os.path.join(path_to_project, "Model", "database_restdb.py"))
     os.rename(
         os.path.join(path_to_project, "Model", "first_screen.py_tmp"),
         os.path.join(path_to_project, "Model", f"{module_name}.py_tmp"),
@@ -993,7 +1000,7 @@ def check_databases(name_database: str, path_to_project: str) -> None:
     )
     os.rename(
         os.path.join(path_to_project, "Model", f"database_{name_database}.py"),
-        os.path.join(path_to_project, "Model", "database.py"),
+        os.path.join(path_to_project, "Model", f"database.py"),
     )
 
 
