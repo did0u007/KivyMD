@@ -476,7 +476,10 @@ def main():
     if "3" not in python_version:
         parser.error("Python must be at least version 3")
     name_screen = "".join(args.name_screen.split(" "))
-    path_to_project = os.path.join(project_directory, project_name)
+    if project_directory in [".","./", ".\\"]:
+        path_to_project = os.path.join(os.getcwd(), project_name)
+    else:
+        path_to_project = os.path.join(project_directory, project_name)
     name_database = args.name_database
     if name_database != "no" and name_database not in available_databases:
         parser.error(
@@ -563,8 +566,10 @@ def main():
             localization_po_file(path_to_project)
             create_mofile(path_to_project)
         else:
-            os.remove(os.path.join(path_to_project, "messages.pot"))
-            os.remove(os.path.join(path_to_project, "libs", "translation.py"))
+            if os.path.exists(os.path.join(path_to_project, "messages.pot")):
+                os.remove(os.path.join(path_to_project, "messages.pot"))
+            if os.path.exists(os.path.join(path_to_project, "libs", "translation.py")):
+                os.remove(os.path.join(path_to_project, "libs", "translation.py"))
             shutil.rmtree(os.path.join(path_to_project, "data"))
         Logger.info(f"KivyMD: Project '{path_to_project}' created")
         Logger.info(
@@ -703,10 +708,12 @@ def create_model(
             os.path.join(path_to_project, "Model", "first_screen.py_tmp"),
             (without_database_model),
         )
-        os.remove(
-            os.path.join(path_to_project, "Model", "database_firebase.py")
-        )
-        os.remove(os.path.join(path_to_project, "Model", "database_restdb.py"))
+        if os.path.exists(os.path.join(path_to_project, "Model", "database_firebase.py")):
+            os.remove(
+                os.path.join(path_to_project, "Model", "database_firebase.py")
+            )
+        if os.path.exists(os.path.join(path_to_project, "Model", "database_restdb.py")):
+            os.remove(os.path.join(path_to_project, "Model", "database_restdb.py"))
     os.rename(
         os.path.join(path_to_project, "Model", "first_screen.py_tmp"),
         os.path.join(path_to_project, "Model", f"{module_name}.py_tmp"),
@@ -733,11 +740,11 @@ def create_controller(
         name_screen=name_screen,
         module_name=module_name,
         import_module=""
-        f"import importlib\n\n"
-        f"import View.{name_screen}.{module_name}\n\n"
-        f"# We have to manually reload the view module in order to apply the\n"
-        f"# changes made to the code on a subsequent hot reload.\n"
-        f"# If you no longer need a hot reload, you can delete this instruction.\n"
+        "import importlib\n\n"
+        "import View.{name_screen}.{module_name}\n\n"
+        "# We have to manually reload the view module in order to apply the\n"
+        "# changes made to the code on a subsequent hot reload.\n"
+        "# If you no longer need a hot reload, you can delete this instruction.\n"
         f"importlib.reload(View.{name_screen}.{module_name})"
         if use_hotreload == "yes"
         else f"\nfrom View.{name_screen}.{module_name} import {name_screen}View",
@@ -937,15 +944,15 @@ def install_requirements(
     if name_database == "firebase":
         os.system(
             f"{python} -m pip install "
-            f"multitasking "
-            f"firebase "
-            f"firebase-admin "
-            f"python_jwt "
-            f"gcloud "
-            f"sseclient "
-            f"pycryptodome==3.4.3 "
-            f"requests_toolbelt "
-            f"watchdog "
+            "multitasking "
+            "firebase "
+            "firebase-admin "
+            "python_jwt "
+            "gcloud "
+            "sseclient "
+            "pycryptodome==3.4.3 "
+            "requests_toolbelt "
+            "watchdog "
         )
     os.system(
         f"{os.path.join(path_to_project, 'venv', 'bin', 'python3')} -m pip list"
